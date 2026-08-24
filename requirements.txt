@@ -1,4 +1,1 @@
-python-telegram-bot==20.7
-requests==2.31.0
-gTTS==2.4.0
-
+python-telegram-bot==21.1.1
