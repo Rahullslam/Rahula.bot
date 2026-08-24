@@ -2,11 +2,30 @@ import os
 import base64
 import re
 import time
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, CallbackQueryHandler, filters
 
-# আপনার টেলিগ্রাম বটের টোকেন এখানে বসাবেন
-TOKEN = "8959088769:AAHEjHMUTcw1TpOddFJXklssNfL6wLc7sTU"
+# Telegram bot token — loaded from environment variable
+TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
+
+
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"OK")
+
+    def log_message(self, format, *args):
+        pass  # Suppress access logs
+
+
+def run_health_server():
+    port = int(os.environ.get("PORT", 8000))
+    server = HTTPServer(("0.0.0.0", port), HealthHandler)
+    server.serve_forever()
+
 
 async def handle_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     document = update.message.document
@@ -67,7 +86,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         content = re.sub(r'<div[^>]*>[\s\S]*?(?:SECURITY STATUS|RESTRICTED|DEPRECATED|HTMLObfuscateBot)[\s\S]*?<\/div>', '', content, flags=re.IGNORECASE)
         
         for _ in range(3):
-            b64_match = re.search(r'atob\(['"]([A-Za-z0-9+/=]+)['"]\)', content) or re.search(r'["\']([A-Za-z0-9+/=]{100,})["\']', content)
+            b64_match = re.search(r'atob\([\'"]([A-Za-z0-9+/=]+)[\'"]\)', content) or re.search(r'["\']([A-Za-z0-9+/=]{100,})["\']', content)
             if b64_match:
                 try:
                     unsealed = base64.b64decode(b64_match.group(1)).decode('utf-8')
@@ -107,6 +126,10 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             os.remove(input_path)
 
 if __name__ == '__main__':
+    # Start lightweight health-check HTTP server in a background thread
+    health_thread = threading.Thread(target=run_health_server, daemon=True)
+    health_thread.start()
+
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(MessageHandler(filters.Document.ALL, handle_file))
     app.add_handler(CallbackQueryHandler(button_handler))
