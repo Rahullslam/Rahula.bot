@@ -300,10 +300,11 @@ async def show_result(update: Update, context: ContextTypes.DEFAULT_TYPE, result
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.error(f"Update {update} error: {context.error}")
 
-# ==================== MAIN ====================
+import asyncio
 
-def main():
-    if BOT_TOKEN == "YOUR_BOT_TOKEN_HERE":
+# ==================== MAIN ====================
+async def main_async():
+    if BOT_TOKEN == "8905282088:AAF5Py6J4vl_k4Jp7q6QAr2Qh-NqxLZM6aA":
         print("❌ ERROR: Please set your BOT_TOKEN!")
         return
     
@@ -320,10 +321,23 @@ def main():
         print("🤖 HTML DECODER BOT STARTED SUCCESSFULLY")
         print("="*50)
         
-        application.run_polling(allowed_updates=Update.ALL_TYPES)
+        # Proper initialization and running for Render / Production
+        await application.initialize()
+        await application.start()
+        await application.updater.start_polling(allowed_updates=Update.ALL_TYPES)
+        
+        # Keep the bot running
+        stop_event = asyncio.Event()
+        await stop_event.wait()
         
     except Exception as e:
         print(f"\n❌ Failed to start: {e}")
+
+def main():
+    try:
+        asyncio.run(main_async())
+    except (KeyboardInterrupt, SystemExit):
+        pass
 
 if __name__ == "__main__":
     main()
