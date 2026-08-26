@@ -1,6 +1,7 @@
 import os
 import logging
 import re
+import asyncio
 from datetime import datetime
 from collections import Counter
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -8,7 +9,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQu
 import io
 
 # ==================== CONFIGURATION ====================
-BOT_TOKEN = "8905282088:AAF5Py6J4vl_k4Jp7q6QAr2Qh-NqxLZM6aA"
+BOT_TOKEN = "8905282088:AAF5Py6J4vl_k4Jp7q6QAr2Qh-NqxLZM6aA[span_1](start_span)"[span_1](end_span)
 
 # ==================== LOGGING ====================
 logging.basicConfig(
@@ -300,16 +301,10 @@ async def show_result(update: Update, context: ContextTypes.DEFAULT_TYPE, result
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.error(f"Update {update} error: {context.error}")
 
-import asyncio
-
 # ==================== MAIN ====================
 async def main_async():
-    if BOT_TOKEN == "8905282088:AAF5Py6J4vl_k4Jp7q6QAr2Qh-NqxLZM6aA":
-        print("❌ ERROR: Please set your BOT_TOKEN!")
-        return
-    
     try:
-        application = Application.builder().token(BOT_TOKEN).build()
+        application = Application.builder().token(BOT_TOKEN).build()[span_2](start_span)[span_2](end_span)
         
         application.add_handler(CommandHandler("start", start))
         application.add_handler(CallbackQueryHandler(button_handler))
@@ -321,12 +316,10 @@ async def main_async():
         print("🤖 HTML DECODER BOT STARTED SUCCESSFULLY")
         print("="*50)
         
-        # Proper initialization and running for Render / Production
         await application.initialize()
         await application.start()
         await application.updater.start_polling(allowed_updates=Update.ALL_TYPES)
         
-        # Keep the bot running
         stop_event = asyncio.Event()
         await stop_event.wait()
         
