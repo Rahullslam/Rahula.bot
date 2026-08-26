@@ -9,7 +9,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQu
 import io
 
 # ==================== CONFIGURATION ====================
-BOT_TOKEN = "8905282088:AAF5Py6J4vl_k4Jp7q6QAr2Qh-NqxLZM6aA[span_1](start_span)"[span_1](end_span)
+BOT_TOKEN = "8905282088:AAF5Py6J4vl_k4Jp7q6QAr2Qh-NqxLZM6aA"
 
 # ==================== LOGGING ====================
 logging.basicConfig(
@@ -52,41 +52,34 @@ class HTMLDecoder:
     def _analyze_html(self):
         content = self.html_content
         
-        # Tags
         tag_pattern = r'<([a-zA-Z][a-zA-Z0-9]*)[^>]*>'
         tags = re.findall(tag_pattern, content)
         self.stats['tags'] = dict(Counter(tags))
         self.stats['total_tags'] = len(tags)
         self.stats['unique_tags'] = len(self.stats['tags'])
         
-        # Links
         link_pattern = r'<a[^>]*href=[\'"]([^\'"]*)[\'"][^>]*>'
         links = re.findall(link_pattern, content, re.IGNORECASE)
         self.stats['links'] = links[:10]
         self.stats['total_links'] = len(links)
         
-        # Images
         img_pattern = r'<img[^>]*src=[\'"]([^\'"]*)[\'"][^>]*>'
         images = re.findall(img_pattern, content, re.IGNORECASE)
         self.stats['images'] = images[:10]
         self.stats['total_images'] = len(images)
         
-        # Scripts
         script_pattern = r'<script[^>]*>.*?</script>'
         scripts = re.findall(script_pattern, content, re.IGNORECASE | re.DOTALL)
         self.stats['total_scripts'] = len(scripts)
         
-        # Styles
         style_pattern = r'<style[^>]*>.*?</style>'
         styles = re.findall(style_pattern, content, re.IGNORECASE | re.DOTALL)
         self.stats['total_styles'] = len(styles)
         
-        # Forms
         form_pattern = r'<form[^>]*>'
         forms = re.findall(form_pattern, content, re.IGNORECASE)
         self.stats['total_forms'] = len(forms)
         
-        # Headings
         headings = {}
         for i in range(1, 7):
             h_pattern = rf'<h{i}[^>]*>(.*?)</h{i}>'
@@ -95,37 +88,30 @@ class HTMLDecoder:
                 headings[f'h{i}'] = [h[:40].strip() for h in h_content[:5]]
         self.stats['headings'] = headings
         
-        # Paragraphs
         p_pattern = r'<p[^>]*>(.*?)</p>'
         paragraphs = re.findall(p_pattern, content, re.IGNORECASE | re.DOTALL)
         self.stats['total_paragraphs'] = len(paragraphs)
         
-        # Tables
         table_pattern = r'<table[^>]*>'
         tables = re.findall(table_pattern, content, re.IGNORECASE)
         self.stats['total_tables'] = len(tables)
         
-        # Comments
         comment_pattern = r'<!--(.*?)-->'
         comments = re.findall(comment_pattern, content, re.DOTALL)
         self.stats['total_comments'] = len(comments)
         
-        # Title
         title_pattern = r'<title[^>]*>(.*?)</title>'
         title_match = re.search(title_pattern, content, re.IGNORECASE | re.DOTALL)
         self.stats['title'] = title_match.group(1).strip() if title_match else 'No title found'
         
-        # Meta description
         meta_pattern = r'<meta[^>]*name=[\'"]description[\'"][^>]*content=[\'"]([^\'"]*)[\'"][^>]*>'
         meta_match = re.search(meta_pattern, content, re.IGNORECASE)
         self.stats['meta_description'] = meta_match.group(1) if meta_match else 'No description'
         
-        # Encoding
         encoding_pattern = r'<meta[^>]*charset=[\'"]([^\'"]*)[\'"][^>]*>'
         encoding_match = re.search(encoding_pattern, content, re.IGNORECASE)
         self.stats['encoding'] = encoding_match.group(1) if encoding_match else 'UTF-8 (default)'
         
-        # Clean text
         text_content = re.sub(r'<[^>]+>', ' ', content)
         text_content = re.sub(r'\s+', ' ', text_content)
         self.stats['clean_text'] = text_content[:300]
@@ -304,7 +290,7 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # ==================== MAIN ====================
 async def main_async():
     try:
-        application = Application.builder().token(BOT_TOKEN).build()[span_2](start_span)[span_2](end_span)
+        application = Application.builder().token(BOT_TOKEN).build()
         
         application.add_handler(CommandHandler("start", start))
         application.add_handler(CallbackQueryHandler(button_handler))
